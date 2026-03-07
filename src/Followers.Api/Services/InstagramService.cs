@@ -16,7 +16,7 @@ public class InstagramService(
 {
     public async Task<IReadOnlyCollection<InstagramUser>> GetNonFollowersAsync(CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(_options.Value.UserId))
+        if (string.IsNullOrWhiteSpace(_userId))
             throw new InvalidOperationException("InstagramOptions.UserId não foi configurado.");
 
         var following = await GetAllFollowingAsync(cancellationToken);
@@ -40,12 +40,12 @@ public class InstagramService(
 
     private Task<List<InstagramUser>> GetAllFollowingAsync(CancellationToken cancellationToken = default) =>
         GetPaginatedAsync(
-            (cursor, ct) => _api.GetFollowingAsync(_options.Value.UserId, 200, cursor),
+            (cursor, ct) => _api.GetFollowingAsync(_userId, 200, cursor),
             cancellationToken);
 
     private Task<List<InstagramUser>> GetAllFollowersAsync(CancellationToken cancellationToken = default) =>
         GetPaginatedAsync(
-            (cursor, ct) => _api.GetFollowersAsync(_options.Value.UserId, 200, cursor, "follow_list_page"),
+            (cursor, ct) => _api.GetFollowersAsync(_userId, 25, cursor),
             cancellationToken);
 
     private static async Task<List<InstagramUser>> GetPaginatedAsync(
@@ -66,9 +66,13 @@ public class InstagramService(
                 break;
 
             nextMaxId = data.NextMaxId;
+
+            await Task.Delay(Random.Shared.Next(10000, 60000), cancellationToken);
         }
 
         return allUsers;
     }
+
+    private readonly string _userId = _options.Value.UserId;
 }
 
