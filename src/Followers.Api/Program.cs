@@ -14,6 +14,8 @@ builder.Services.Configure<InstagramOptions>(options =>
     options.Cookie = Environment.GetEnvironmentVariable("InstagramSettings_Cookie") ?? string.Empty;
     options.IgAppId = Environment.GetEnvironmentVariable("InstagramSettings_IgAppId") ?? string.Empty;
     options.UserId = Environment.GetEnvironmentVariable("InstagramSettings_UserId") ?? string.Empty;
+    options.DelayMinBetweenRequestsMs = int.TryParse(builder.Configuration["InstagramSettings:DelayMinBetweenRequestsMs"], out var minDelay) ? minDelay : 1000;
+    options.DelayMaxBetweenRequestsMs = int.TryParse(builder.Configuration["InstagramSettings:DelayMaxBetweenRequestsMs"], out var maxDelay) ? maxDelay : 10000;
 });
 
 builder.Services.AddScoped<InstagramService>();

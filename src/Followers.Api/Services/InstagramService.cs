@@ -6,7 +6,7 @@ namespace FollowersApi.Services;
 
 public interface IInstagramService
 {
-    Task<IReadOnlyCollection<InstagramUser>> GetNonFollowersAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<InstagramUserResponse>> GetNonFollowersAsync(CancellationToken cancellationToken = default);
 }
 
 public class InstagramService(
@@ -14,7 +14,7 @@ public class InstagramService(
     IOptions<InstagramOptions> _options,
     ILogger<InstagramService> _logger) : IInstagramService
 {
-    public async Task<IReadOnlyCollection<InstagramUser>> GetNonFollowersAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<InstagramUserResponse>> GetNonFollowersAsync(CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(_userId))
             throw new InvalidOperationException("InstagramOptions.UserId não foi configurado.");
@@ -27,6 +27,11 @@ public class InstagramService(
         var nonFollowers = following
             .Where(f => !followerIds.Contains(f.Pk))
             .OrderBy(f => f.Username, StringComparer.OrdinalIgnoreCase)
+            .Select(f => new InstagramUserResponse
+            {
+                Username = f.Username,
+                FullName = f.FullName
+            })
             .ToList();
 
         _logger.LogInformation(
@@ -48,7 +53,7 @@ public class InstagramService(
             (cursor, ct) => _api.GetFollowersAsync(_userId, 25, cursor),
             cancellationToken);
 
-    private static async Task<List<InstagramUser>> GetPaginatedAsync(
+    private async Task<List<InstagramUser>> GetPaginatedAsync(
         Func<string?, CancellationToken, Task<InstagramFriendshipResponse>> fetchPage,
         CancellationToken cancellationToken)
     {
@@ -67,12 +72,14 @@ public class InstagramService(
 
             nextMaxId = data.NextMaxId;
 
-            await Task.Delay(Random.Shared.Next(10000, 60000), cancellationToken);
+            await Task.Delay(Random.Shared.Next(_delayMinBetweenRequestsMs, _delayMaxBetweenRequestsMs), cancellationToken);
         }
 
         return allUsers;
     }
 
     private readonly string _userId = _options.Value.UserId;
+    private readonly int _delayMinBetweenRequestsMs = _options.Value.DelayMinBetweenRequestsMs;
+    private readonly int _delayMaxBetweenRequestsMs = _options.Value.DelayMaxBetweenRequestsMs;
 }
 

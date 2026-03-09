@@ -21,5 +21,9 @@ public class InstagramOptions
     /// Valor do cabeçalho x-ig-app-id.
     /// </summary>
     public string IgAppId { get; set; } = string.Empty;
+
+    public int DelayMinBetweenRequestsMs { get; set; } = 1000;
+
+    public int DelayMaxBetweenRequestsMs { get; set; } = 10000;
 }
 
