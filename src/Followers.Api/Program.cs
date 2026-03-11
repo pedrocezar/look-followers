@@ -16,6 +16,8 @@ builder.Services.Configure<InstagramOptions>(options =>
     options.UserId = Environment.GetEnvironmentVariable("InstagramSettings_UserId") ?? string.Empty;
     options.DelayMinBetweenRequestsMs = int.TryParse(builder.Configuration["InstagramSettings:DelayMinBetweenRequestsMs"], out var minDelay) ? minDelay : 1000;
     options.DelayMaxBetweenRequestsMs = int.TryParse(builder.Configuration["InstagramSettings:DelayMaxBetweenRequestsMs"], out var maxDelay) ? maxDelay : 10000;
+    options.RetryDelayMs = int.TryParse(builder.Configuration["InstagramSettings:RetryDelayMs"], out var retryDelay) ? retryDelay : 2000;
+    options.MaxRetryAttempts = int.TryParse(builder.Configuration["InstagramSettings:MaxRetryAttempts"], out var maxAttempts) ? maxAttempts : 3;
 });
 
 builder.Services.AddScoped<InstagramService>();

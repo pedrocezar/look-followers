@@ -25,5 +25,15 @@ public class InstagramOptions
     public int DelayMinBetweenRequestsMs { get; set; } = 1000;
 
     public int DelayMaxBetweenRequestsMs { get; set; } = 10000;
+
+    /// <summary>
+    /// Tempo fixo de espera (em ms) entre tentativas de retry quando uma chamada à API falhar.
+    /// </summary>
+    public int RetryDelayMs { get; set; } = 2000;
+
+    /// <summary>
+    /// Número máximo de tentativas ao chamar a API (incluindo a primeira tentativa).
+    /// </summary>
+    public int MaxRetryAttempts { get; set; } = 3;
 }
 

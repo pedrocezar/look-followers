@@ -6,7 +6,7 @@ namespace FollowersApi.Services;
 
 public interface IInstagramService
 {
-    Task<IReadOnlyCollection<InstagramUserResponse>> GetNonFollowersAsync(CancellationToken cancellationToken = default);
+    Task<List<InstagramUserResponse>> GetNonFollowersAsync(CancellationToken cancellationToken = default);
 }
 
 public class InstagramService(
@@ -14,7 +14,7 @@ public class InstagramService(
     IOptions<InstagramOptions> _options,
     ILogger<InstagramService> _logger) : IInstagramService
 {
-    public async Task<IReadOnlyCollection<InstagramUserResponse>> GetNonFollowersAsync(CancellationToken cancellationToken = default)
+    public async Task<List<InstagramUserResponse>> GetNonFollowersAsync(CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(_userId))
             throw new InvalidOperationException("InstagramOptions.UserId não foi configurado.");
@@ -43,14 +43,14 @@ public class InstagramService(
         return nonFollowers;
     }
 
-    private Task<List<InstagramUser>> GetAllFollowingAsync(CancellationToken cancellationToken = default) =>
-        GetPaginatedAsync(
-            (cursor, ct) => _api.GetFollowingAsync(_userId, 200, cursor),
+    private async Task<List<InstagramUser>> GetAllFollowingAsync(CancellationToken cancellationToken = default) =>
+        await GetPaginatedAsync(
+            async (cursor, ct) => await _api.GetFollowingAsync(_userId, 200, cursor),
             cancellationToken);
 
-    private Task<List<InstagramUser>> GetAllFollowersAsync(CancellationToken cancellationToken = default) =>
-        GetPaginatedAsync(
-            (cursor, ct) => _api.GetFollowersAsync(_userId, 25, cursor),
+    private async Task<List<InstagramUser>> GetAllFollowersAsync(CancellationToken cancellationToken = default) =>
+        await GetPaginatedAsync(
+            async (cursor, ct) => await _api.GetFollowersAsync(_userId, 25, cursor),
             cancellationToken);
 
     private async Task<List<InstagramUser>> GetPaginatedAsync(
@@ -58,19 +58,18 @@ public class InstagramService(
         CancellationToken cancellationToken)
     {
         var allUsers = new List<InstagramUser>();
-        string? nextMaxId = null;
+        var nextMaxId = (string?)null;
 
         while (true)
         {
-            var data = await fetchPage(nextMaxId, cancellationToken);
+            var data = await FetchPageWithRetryAsync(fetchPage, nextMaxId, cancellationToken);
 
-            if (data?.Users is { Count: > 0 })
-                allUsers.AddRange(data.Users);
+            AddUsersIfAny(allUsers, data);
 
-            if (data is null || !data.HasMore || string.IsNullOrEmpty(data.NextMaxId))
+            if (ShouldStopPagination(data))
                 break;
 
-            nextMaxId = data.NextMaxId;
+            nextMaxId = data?.NextMaxId;
 
             await Task.Delay(Random.Shared.Next(_delayMinBetweenRequestsMs, _delayMaxBetweenRequestsMs), cancellationToken);
         }
@@ -78,8 +77,57 @@ public class InstagramService(
         return allUsers;
     }
 
+    private async Task<InstagramFriendshipResponse?> FetchPageWithRetryAsync(
+        Func<string?, CancellationToken, Task<InstagramFriendshipResponse>> fetchPage,
+        string? nextMaxId,
+        CancellationToken cancellationToken)
+    {
+        for (var attempt = 1; attempt <= _maxRetryAttempts; attempt++)
+        {
+            try
+            {
+                var result = await fetchPage(nextMaxId, cancellationToken);
+                return result;
+            }
+            catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+            {
+                if (attempt >= _maxRetryAttempts)
+                {
+                    _logger.LogError(
+                        ex,
+                        "Erro ao buscar página de usuários do Instagram após {MaxAttempts} tentativas. Interrompendo paginação e retornando resultado parcial.",
+                        _maxRetryAttempts);
+                    
+                    throw new InvalidOperationException($"Falha ao buscar dados do Instagram após {_maxRetryAttempts} tentativas. Veja logs para detalhes.", ex);
+                }
+
+                _logger.LogWarning(
+                    ex,
+                    "Erro ao buscar página de usuários do Instagram (tentativa {Attempt}/{MaxAttempts}). Aguardando {DelayMs}ms antes de tentar novamente.",
+                    attempt,
+                    _maxRetryAttempts,
+                    _retryDelayMs);
+
+                await Task.Delay(_retryDelayMs, cancellationToken);
+            }
+        }
+
+        throw new InvalidOperationException("Falha inesperada ao buscar dados do Instagram. Todas as tentativas de retry foram esgotadas.");
+    }
+
+    private static void AddUsersIfAny(List<InstagramUser> allUsers, InstagramFriendshipResponse? data)
+    {
+        if (data?.Users is { Count: > 0 })
+            allUsers.AddRange(data.Users);
+    }
+
+    private static bool ShouldStopPagination(InstagramFriendshipResponse? data) =>
+        data is null || !data.HasMore || string.IsNullOrEmpty(data.NextMaxId);
+
     private readonly string _userId = _options.Value.UserId;
     private readonly int _delayMinBetweenRequestsMs = _options.Value.DelayMinBetweenRequestsMs;
     private readonly int _delayMaxBetweenRequestsMs = _options.Value.DelayMaxBetweenRequestsMs;
+    private readonly int _retryDelayMs = _options.Value.RetryDelayMs;
+    private readonly int _maxRetryAttempts = _options.Value.MaxRetryAttempts;
 }
 
