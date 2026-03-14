@@ -22,22 +22,26 @@ builder.Services.Configure<InstagramOptions>(options =>
 
 builder.Services.AddScoped<InstagramService>();
 
-builder.Services.AddRefitClient<IInstagramApi>().ConfigureHttpClient((sp, client) =>
-{
-    var options = sp.GetRequiredService<IOptions<InstagramOptions>>().Value;
-    client.BaseAddress = new Uri(options.BaseUrl);
-    var headers = client.DefaultRequestHeaders;
-    headers.Clear();
-    headers.Add("x-ig-app-id", options.IgAppId);
-    headers.Add("cookie", options.Cookie);
-});
+builder.Services.AddRefitClient<IInstagramApi>()
+    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+    {
+        MaxConnectionsPerServer = 1,
+        PooledConnectionLifetime = TimeSpan.FromMinutes(1)
+    })
+    .ConfigureHttpClient((sp, client) =>
+    {
+        var options = sp.GetRequiredService<IOptions<InstagramOptions>>().Value;
+        client.BaseAddress = new Uri(options.BaseUrl);
+        var headers = client.DefaultRequestHeaders;
+        headers.Clear();
+        headers.Add("x-ig-app-id", options.IgAppId);
+        headers.Add("cookie", options.Cookie);
+    });
 
 var app = builder.Build();
 
 if (!app.Environment.IsProduction())
     app.MapOpenApi();
-
-app.UseHttpsRedirection();
 
 app.MapGet("/api/nonfollowers", async (InstagramService instagramService, CancellationToken cancellationToken) =>
     await instagramService.GetNonFollowersAsync(cancellationToken))
