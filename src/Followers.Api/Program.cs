@@ -10,7 +10,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.Configure<InstagramOptions>(options =>
 {
-    options.BaseUrl = builder.Configuration["InstagramSettings:BaseUrl"] ?? throw new InvalidOperationException("InstagramSettings:BaseUrl não foi configurado.");
+    options.BaseUrl = builder.Configuration["InstagramSettings:BaseUrl"] ?? throw new InvalidOperationException("InstagramSettings:BaseUrl was not configured.");
     options.Cookie = Environment.GetEnvironmentVariable("InstagramSettings_Cookie") ?? string.Empty;
     options.IgAppId = Environment.GetEnvironmentVariable("InstagramSettings_IgAppId") ?? string.Empty;
     options.UserId = Environment.GetEnvironmentVariable("InstagramSettings_UserId") ?? string.Empty;
@@ -52,7 +52,7 @@ if (!app.Environment.IsProduction())
 app.MapGet("/api/nonfollowers", async (InstagramService instagramService, CancellationToken cancellationToken) =>
     await instagramService.GetNonFollowersAsync(cancellationToken))
     .WithName("GetNonFollowers")
-    .WithSummary("Retorna as pessoas que você segue e que não te seguem de volta.")
-    .WithDescription("Busca todos os seus 'following' e todos os 'followers' no Instagram (paginando pelas APIs) e devolve apenas quem não te segue de volta.");
+    .WithSummary("Returns people you follow who do not follow you back.")
+    .WithDescription("Fetches all your following and followers from Instagram (with pagination) and returns only those who do not follow you back.");
 
 await app.RunAsync();

@@ -17,7 +17,7 @@ public class InstagramService(
     public async Task<List<InstagramUserResponse>> GetNonFollowersAsync(CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(_userId))
-            throw new InvalidOperationException("InstagramOptions.UserId não foi configurado.");
+            throw new InvalidOperationException("InstagramOptions.UserId was not configured.");
 
         var following = await GetAllFollowingAsync(cancellationToken);
         var followers = await GetAllFollowersAsync(cancellationToken);
@@ -35,7 +35,7 @@ public class InstagramService(
             .ToList();
 
         _logger.LogInformation(
-            "Total seguindo: {FollowingCount}, seguidores: {FollowersCount}, não te seguem de volta: {NonFollowersCount}",
+            "Total following: {FollowingCount}, followers: {FollowersCount}, non-followers (do not follow back): {NonFollowersCount}",
             following.Count,
             followers.Count,
             nonFollowers.Count);
@@ -95,15 +95,15 @@ public class InstagramService(
                 {
                     _logger.LogError(
                         ex,
-                        "Erro ao buscar página de usuários do Instagram após {MaxAttempts} tentativas. Interrompendo paginação e retornando resultado parcial.",
+                        "Error fetching Instagram user page after {MaxAttempts} attempts. Aborting pagination and returning partial result.",
                         _maxRetryAttempts);
                     
-                    throw new InvalidOperationException($"Falha ao buscar dados do Instagram após {_maxRetryAttempts} tentativas. Veja logs para detalhes.", ex);
+                    throw new InvalidOperationException($"Failed to fetch Instagram data after {_maxRetryAttempts} attempts. See logs for details.", ex);
                 }
 
                 _logger.LogWarning(
                     ex,
-                    "Erro ao buscar página de usuários do Instagram (tentativa {Attempt}/{MaxAttempts}). Aguardando {DelayMs}ms antes de tentar novamente.",
+                    "Error fetching Instagram user page (attempt {Attempt}/{MaxAttempts}). Waiting {DelayMs}ms before retrying.",
                     attempt,
                     _maxRetryAttempts,
                     _retryDelayMs);
@@ -112,7 +112,7 @@ public class InstagramService(
             }
         }
 
-        throw new InvalidOperationException("Falha inesperada ao buscar dados do Instagram. Todas as tentativas de retry foram esgotadas.");
+        throw new InvalidOperationException("Unexpected failure fetching Instagram data. All retry attempts were exhausted.");
     }
 
     private static void AddUsersIfAny(List<InstagramUser> allUsers, InstagramFriendshipResponse? data)

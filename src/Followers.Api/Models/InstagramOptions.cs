@@ -3,50 +3,52 @@ namespace FollowersApi.Models;
 public class InstagramOptions
 {
     /// <summary>
-    /// URL base da API do Instagram.
+    /// Base URL for the Instagram API.
     /// </summary>
     public string BaseUrl { get; set; } = string.Empty;
 
     /// <summary>
-    /// ID numérico da sua conta Instagram (por exemplo: 400339888).
+    /// Your Instagram account numeric ID (e.g. 400339888).
     /// </summary>
     public string UserId { get; set; } = string.Empty;
 
     /// <summary>
-    /// Cabeçalho Cookie completo copiado do DevTools (contendo sessionid, csrftoken, etc.).
+    /// Full Cookie header from DevTools (contains sessionid, csrftoken, etc.).
     /// </summary>
     public string Cookie { get; set; } = string.Empty;
 
     /// <summary>
-    /// Valor do cabeçalho x-ig-app-id.
+    /// Value of the x-ig-app-id header.
     /// </summary>
     public string IgAppId { get; set; } = string.Empty;
 
-    /// <summary> 
-    /// Tempo mínimo de espera (em ms) entre chamadas à API do Instagram. Configurar um valor alto (ex: 30000) é recomendado para evitar bloqueios. 
+    /// <summary>
+    /// Minimum delay (ms) between Instagram API calls. A higher value (e.g. 30000) is recommended to avoid blocks.
     /// </summary>
     public int DelayMinBetweenRequestsMs { get; set; } = 1000;
 
-    /// <summary> Tempo máximo de espera (em ms) entre chamadas à API do Instagram. Configurar um valor alto (ex: 60000) é recomendado para evitar bloqueios. </summary>
+    /// <summary>
+    /// Maximum delay (ms) between Instagram API calls. A higher value (e.g. 60000) is recommended to avoid blocks.
+    /// </summary>
     public int DelayMaxBetweenRequestsMs { get; set; } = 10000;
 
     /// <summary>
-    /// Tempo fixo de espera (em ms) entre tentativas de retry quando uma chamada à API falhar.
+    /// Fixed delay (ms) between retry attempts when an API call fails.
     /// </summary>
     public int RetryDelayMs { get; set; } = 2000;
 
     /// <summary>
-    /// Número máximo de tentativas ao chamar a API (incluindo a primeira tentativa).
+    /// Maximum number of attempts per API call (including the first attempt).
     /// </summary>
     public int MaxRetryAttempts { get; set; } = 3;
 
-    /// <summary> 
-    /// Número máximo de conexões simultâneas com o servidor do Instagram. Configurar como 1 é recomendado para evitar bloqueios. 
+    /// <summary>
+    /// Maximum concurrent connections to the Instagram server. Setting to 1 is recommended to avoid blocks.
     /// </summary>
     public int MaxConnectionsPerServer { get; set; } = 1;
 
-    /// <summary> 
-    /// Tempo de vida (em minutos) para conexões HTTP persistentes. Configurar como 1 minuto é recomendado para evitar bloqueios. 
+    /// <summary>
+    /// Lifetime (minutes) for pooled HTTP connections. Setting to 1 minute is recommended to avoid blocks.
     /// </summary>
     public int PooledConnectionLifetimeMinutes { get; set; } = 1;
 }
