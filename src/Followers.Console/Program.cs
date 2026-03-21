@@ -19,12 +19,12 @@ builder.Services.Configure<InstagramOptions>(options =>
     options.Cookie = Environment.GetEnvironmentVariable("INSTAGRAM_SETTINGS_COOKIE") ?? string.Empty;
     options.UserId = Environment.GetEnvironmentVariable("INSTAGRAM_SETTINGS_USER_ID") ?? string.Empty;
     options.IgAppId = Environment.GetEnvironmentVariable("INSTAGRAM_SETTINGS_IG_APP_ID") ?? string.Empty;
-    options.DelayMinBetweenRequestsMs = int.TryParse(builder.Configuration["InstagramSettings:DelayMinBetweenRequestsMs"], out var minDelay) ? minDelay : 1000;
-    options.DelayMaxBetweenRequestsMs = int.TryParse(builder.Configuration["InstagramSettings:DelayMaxBetweenRequestsMs"], out var maxDelay) ? maxDelay : 10000;
-    options.RetryDelayMs = int.TryParse(builder.Configuration["InstagramSettings:RetryDelayMs"], out var retryDelay) ? retryDelay : 2000;
-    options.MaxRetryAttempts = int.TryParse(builder.Configuration["InstagramSettings:MaxRetryAttempts"], out var maxAttempts) ? maxAttempts : 3;
-    options.MaxConnectionsPerServer = int.TryParse(builder.Configuration["InstagramSettings:MaxConnectionsPerServer"], out var maxConnections) ? maxConnections : 1;
-    options.PooledConnectionLifetimeMs = int.TryParse(builder.Configuration["InstagramSettings:PooledConnectionLifetimeMs"], out var pooledConnectionLifetime) ? pooledConnectionLifetime : 1000;
+    options.DelayMinBetweenRequestsMs = int.TryParse(Environment.GetEnvironmentVariable("INSTAGRAM_SETTINGS_DELAY_MIN_BETWEEN_REQUESTS_MS"), out var minDelay) ? minDelay : 2000;
+    options.DelayMaxBetweenRequestsMs = int.TryParse(Environment.GetEnvironmentVariable("INSTAGRAM_SETTINGS_DELAY_MAX_BETWEEN_REQUESTS_MS"), out var maxDelay) ? maxDelay : 4000;
+    options.RetryDelayMs = int.TryParse(Environment.GetEnvironmentVariable("INSTAGRAM_SETTINGS_RETRY_DELAY_MS"), out var retryDelay) ? retryDelay : 10000;
+    options.MaxRetryAttempts = int.TryParse(Environment.GetEnvironmentVariable("INSTAGRAM_SETTINGS_MAX_RETRY_ATTEMPTS"), out var maxAttempts) ? maxAttempts : 3;
+    options.MaxConnectionsPerServer = int.TryParse(Environment.GetEnvironmentVariable("INSTAGRAM_SETTINGS_MAX_CONNECTIONS_PER_SERVER"), out var maxConnections) ? maxConnections : 1;
+    options.PooledConnectionLifetimeMs = int.TryParse(Environment.GetEnvironmentVariable("INSTAGRAM_SETTINGS_POOLED_CONNECTION_LIFETIME_MS"), out var pooledConnectionLifetime) ? pooledConnectionLifetime : 2000;
 });
 
 builder.Services.Configure<HostOptions>(options =>
