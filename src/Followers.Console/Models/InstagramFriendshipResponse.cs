@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace FollowersApi.Models;
+namespace Followers.Console.Models;
 
 public class InstagramFriendshipResponse
 {

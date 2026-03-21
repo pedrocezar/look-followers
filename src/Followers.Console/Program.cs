@@ -1,9 +1,9 @@
-using FollowersApi.Clients;
-using FollowersApi.Models;
-using FollowersApi.Services;
+using Followers.Console.Clients;
+using Followers.Console.Models;
+using Followers.Console.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using FollowersApi.Workers;
+using Followers.Console.Workers;
 using Microsoft.Extensions.Options;
 using Refit;
 

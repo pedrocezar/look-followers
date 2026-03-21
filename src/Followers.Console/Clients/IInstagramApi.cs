@@ -1,7 +1,7 @@
-using FollowersApi.Models;
+using Followers.Console.Models;
 using Refit;
 
-namespace FollowersApi.Clients;
+namespace Followers.Console.Clients;
 
 public interface IInstagramApi
 {

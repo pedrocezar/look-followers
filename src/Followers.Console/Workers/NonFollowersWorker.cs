@@ -1,9 +1,9 @@
-using FollowersApi.Services;
+using System.Text.Json;
+using Followers.Console.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
-namespace FollowersApi.Workers;
+namespace Followers.Console.Workers;
 
 public sealed class NonFollowersWorker(
     IInstagramService instagramService,
@@ -22,8 +22,7 @@ public sealed class NonFollowersWorker(
                 WriteIndented = true
             });
 
-            Console.WriteLine(json);
-            logger.LogInformation("Finished. Total non-followers: {Count}", nonFollowers.Count);
+            logger.LogInformation(json);
         }
         catch (Exception ex)
         {

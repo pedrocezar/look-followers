@@ -1,3 +1,3 @@
 <Solution>
-  <Project Path="src/Followers.Api/Followers.Api.csproj" />
+  <Project Path="src/Followers.Console/Followers.Console.csproj" />
 </Solution>

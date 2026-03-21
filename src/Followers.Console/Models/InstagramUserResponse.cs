@@ -1,4 +1,4 @@
-namespace FollowersApi.Models;
+namespace Followers.Console.Models;
 
 public class InstagramUserResponse
 {

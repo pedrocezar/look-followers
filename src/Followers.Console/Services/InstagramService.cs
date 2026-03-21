@@ -1,9 +1,9 @@
-using FollowersApi.Clients;
-using FollowersApi.Models;
+using Followers.Console.Clients;
+using Followers.Console.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FollowersApi.Services;
+namespace Followers.Console.Services;
 
 public interface IInstagramService
 {
