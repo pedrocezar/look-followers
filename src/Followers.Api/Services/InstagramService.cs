@@ -1,5 +1,6 @@
 using FollowersApi.Clients;
 using FollowersApi.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace FollowersApi.Services;

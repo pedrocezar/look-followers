@@ -1,14 +1,13 @@
 # Look Followers
 
-A minimal ASP.NET Core API that discovers **people you follow on Instagram who do not follow you back** (non-followers). It uses Instagram’s internal friendship APIs with pagination, retries, and configurable delays to reduce the risk of rate limits or blocks.
+A .NET console application that discovers **people you follow on Instagram who do not follow you back** (non-followers). It uses Instagram’s internal friendship APIs with pagination, retries, and configurable delays to reduce the risk of rate limits or blocks.
 
 ## Features
 
-- **Non-followers endpoint**: `GET /api/nonfollowers` returns a list of users you follow who are not in your followers list.
+- **Console output**: Prints a JSON list of users you follow who are not in your followers list.
 - **Pagination**: Fetches all following and followers via Instagram’s paginated APIs.
 - **Retries**: Configurable retries with delay on transient failures.
 - **Rate limiting**: Random delay between requests and single-connection usage to avoid blocks.
-- **OpenAPI**: OpenAPI spec available in non-production environments.
 
 ## Requirements
 
@@ -25,13 +24,14 @@ A minimal ASP.NET Core API that discovers **people you follow on Instagram who d
    dotnet run --project src/Followers.Api
    ```
 
-2. **Call the API**
+2. **Read output in terminal**
 
    ```bash
-   curl http://localhost:5000/api/nonfollowers
+   [
+     { "username": "johndoe", "fullName": "John Doe" },
+     { "username": "janedoe", "fullName": "Jane Doe" }
+   ]
    ```
-
-   (Replace the port if your app uses a different one.)
 
 ## Configuration
 
@@ -55,17 +55,13 @@ Settings are read from `appsettings.json` and environment variables.
 | `InstagramSettings:RetryDelayMs` | 2000 | Delay (ms) before each retry. |
 | `InstagramSettings:MaxRetryAttempts` | 3 | Max number of attempts per request. |
 | `InstagramSettings:MaxConnectionsPerServer` | 1 | Max concurrent connections (keep 1 to reduce block risk). |
-| `InstagramSettings:PooledConnectionLifetimeMinutes` | 1 | HTTP connection pool lifetime (minutes). |
+| `InstagramSettings:PooledConnectionLifetimeMs` | 1 | HTTP connection pool lifetime (milliseconds). |
 
 Higher delays (e.g. 30–60 seconds between requests) are recommended to reduce the chance of Instagram rate limits or blocks.
 
-## API
+## Output
 
-### GET /api/nonfollowers
-
-Returns users you follow who do not follow you back.
-
-**Response:** JSON array of objects:
+Returns users you follow who do not follow you back as a JSON array:
 
 ```json
 [
@@ -83,7 +79,7 @@ look-followers/
 │       ├── Clients/       # Refit API client (IInstagramApi)
 │       ├── Models/        # DTOs and options
 │       ├── Services/      # InstagramService (non-followers logic)
-│       ├── Program.cs     # App bootstrap and endpoints
+│       ├── Program.cs     # Console bootstrap and execution flow
 │       └── appsettings.json
 └── README.md
 ```

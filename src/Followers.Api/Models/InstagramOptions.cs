@@ -50,6 +50,6 @@ public class InstagramOptions
     /// <summary>
     /// Lifetime (minutes) for pooled HTTP connections. Setting to 1 minute is recommended to avoid blocks.
     /// </summary>
-    public int PooledConnectionLifetimeMinutes { get; set; } = 1;
+    public int PooledConnectionLifetimeMs { get; set; } = 1;
 }
 

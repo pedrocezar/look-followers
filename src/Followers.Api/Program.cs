@@ -1,12 +1,13 @@
 using FollowersApi.Clients;
 using FollowersApi.Models;
 using FollowersApi.Services;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using FollowersApi.Workers;
 using Microsoft.Extensions.Options;
 using Refit;
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddOpenApi();
+var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.Configure<InstagramOptions>(options =>
 {
@@ -19,10 +20,12 @@ builder.Services.Configure<InstagramOptions>(options =>
     options.RetryDelayMs = int.TryParse(builder.Configuration["InstagramSettings:RetryDelayMs"], out var retryDelay) ? retryDelay : 2000;
     options.MaxRetryAttempts = int.TryParse(builder.Configuration["InstagramSettings:MaxRetryAttempts"], out var maxAttempts) ? maxAttempts : 3;
     options.MaxConnectionsPerServer = int.TryParse(builder.Configuration["InstagramSettings:MaxConnectionsPerServer"], out var maxConnections) ? maxConnections : 1;
-    options.PooledConnectionLifetimeMinutes = int.TryParse(builder.Configuration["InstagramSettings:PooledConnectionLifetimeMinutes"], out var pooledConnectionLifetime) ? pooledConnectionLifetime : 1;
+    options.PooledConnectionLifetimeMs = int.TryParse(builder.Configuration["InstagramSettings:PooledConnectionLifetimeMs"], out var pooledConnectionLifetime) ? pooledConnectionLifetime : 1000;
 });
 
-builder.Services.AddScoped<InstagramService>();
+builder.Services.AddScoped<IInstagramService, InstagramService>();
+
+builder.Services.AddHostedService<NonFollowersWorker>();
 
 builder.Services.AddRefitClient<IInstagramApi>()
     .ConfigurePrimaryHttpMessageHandler(sp =>
@@ -31,7 +34,7 @@ builder.Services.AddRefitClient<IInstagramApi>()
         return new SocketsHttpHandler
         {
             MaxConnectionsPerServer = options.MaxConnectionsPerServer,
-            PooledConnectionLifetime = TimeSpan.FromMinutes(options.PooledConnectionLifetimeMinutes)
+            PooledConnectionLifetime = TimeSpan.FromMilliseconds(options.PooledConnectionLifetimeMs)
         };
     })
     .ConfigureHttpClient((sp, client) =>
@@ -42,17 +45,10 @@ builder.Services.AddRefitClient<IInstagramApi>()
         headers.Clear();
         headers.Add("x-ig-app-id", options.IgAppId);
         headers.Add("cookie", options.Cookie);
+        headers.Add("origin", options.BaseUrl);
+        headers.Add("referer", options.BaseUrl);
     });
 
-var app = builder.Build();
+using var host = builder.Build();
 
-if (!app.Environment.IsProduction())
-    app.MapOpenApi();
-
-app.MapGet("/api/nonfollowers", async (InstagramService instagramService, CancellationToken cancellationToken) =>
-    await instagramService.GetNonFollowersAsync(cancellationToken))
-    .WithName("GetNonFollowers")
-    .WithSummary("Returns people you follow who do not follow you back.")
-    .WithDescription("Fetches all your following and followers from Instagram (with pagination) and returns only those who do not follow you back.");
-
-await app.RunAsync();
+await host.RunAsync();
