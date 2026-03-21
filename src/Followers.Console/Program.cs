@@ -12,9 +12,9 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.Configure<InstagramOptions>(options =>
 {
     options.BaseUrl = builder.Configuration["InstagramSettings:BaseUrl"] ?? throw new InvalidOperationException("InstagramSettings:BaseUrl was not configured.");
-    options.Cookie = Environment.GetEnvironmentVariable("InstagramSettings_Cookie") ?? string.Empty;
-    options.IgAppId = Environment.GetEnvironmentVariable("InstagramSettings_IgAppId") ?? string.Empty;
-    options.UserId = Environment.GetEnvironmentVariable("InstagramSettings_UserId") ?? string.Empty;
+    options.Cookie = Environment.GetEnvironmentVariable("INSTAGRAM_SETTINGS_COOKIE") ?? string.Empty;
+    options.UserId = Environment.GetEnvironmentVariable("INSTAGRAM_SETTINGS_USER_ID") ?? string.Empty;
+    options.IgAppId = Environment.GetEnvironmentVariable("INSTAGRAM_SETTINGS_IG_APP_ID") ?? string.Empty;
     options.DelayMinBetweenRequestsMs = int.TryParse(builder.Configuration["InstagramSettings:DelayMinBetweenRequestsMs"], out var minDelay) ? minDelay : 1000;
     options.DelayMaxBetweenRequestsMs = int.TryParse(builder.Configuration["InstagramSettings:DelayMaxBetweenRequestsMs"], out var maxDelay) ? maxDelay : 10000;
     options.RetryDelayMs = int.TryParse(builder.Configuration["InstagramSettings:RetryDelayMs"], out var retryDelay) ? retryDelay : 2000;
