@@ -7,7 +7,11 @@ using Followers.Console.Workers;
 using Microsoft.Extensions.Options;
 using Refit;
 
-var builder = Host.CreateApplicationBuilder(args);
+var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+{
+    Args = args,
+    ContentRootPath = AppContext.BaseDirectory
+});
 
 builder.Services.Configure<InstagramOptions>(options =>
 {
