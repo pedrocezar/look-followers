@@ -51,7 +51,7 @@ public class InstagramService(
 
     private async Task<List<InstagramUser>> GetAllFollowersAsync(CancellationToken cancellationToken = default) =>
         await GetPaginatedAsync(
-            async (cursor, ct) => await _api.GetFollowersAsync(_userId, 25, cursor),
+            async (cursor, ct) => await _api.GetFollowersAsync(_userId, 12, cursor),
             cancellationToken);
 
     private async Task<List<InstagramUser>> GetPaginatedAsync(
