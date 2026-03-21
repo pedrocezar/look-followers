@@ -27,6 +27,11 @@ builder.Services.Configure<InstagramOptions>(options =>
     options.PooledConnectionLifetimeMs = int.TryParse(builder.Configuration["InstagramSettings:PooledConnectionLifetimeMs"], out var pooledConnectionLifetime) ? pooledConnectionLifetime : 1000;
 });
 
+builder.Services.Configure<HostOptions>(options =>
+{
+    options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.StopHost;
+});
+
 builder.Services.AddScoped<IInstagramService, InstagramService>();
 
 builder.Services.AddHostedService<NonFollowersWorker>();
@@ -56,3 +61,5 @@ builder.Services.AddRefitClient<IInstagramApi>()
 using var host = builder.Build();
 
 await host.RunAsync();
+
+return Environment.ExitCode;

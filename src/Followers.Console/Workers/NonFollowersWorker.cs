@@ -27,6 +27,7 @@ public sealed class NonFollowersWorker(
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to fetch non-followers.");
+            Environment.ExitCode = 1;
             throw new InvalidOperationException("An error occurred while fetching non-followers.", ex);
         }
         finally
