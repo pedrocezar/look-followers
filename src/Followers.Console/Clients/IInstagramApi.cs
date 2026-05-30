@@ -15,6 +15,7 @@ public interface IInstagramApi
     Task<InstagramFriendshipResponse> GetFollowersAsync(
         string userId,
         [AliasAs("count")] int count = 200,
-        [AliasAs("max_id")] string? maxId = null);
+        [AliasAs("max_id")] string? maxId = null,
+        [AliasAs("search_surface")] string searchSurface = "follow_list_page");
 }
 
