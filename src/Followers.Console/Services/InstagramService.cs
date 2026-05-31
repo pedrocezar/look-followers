@@ -24,9 +24,13 @@ public class InstagramService(
         var followers = await GetAllFollowersAsync(cancellationToken);
 
         var followerIds = new HashSet<string>(followers.Select(u => u.Pk));
+        var excludedUsernames = new HashSet<string>(
+            _options.Value.ExcludedUsernames,
+            StringComparer.OrdinalIgnoreCase);
 
         var nonFollowers = following
             .Where(f => !followerIds.Contains(f.Pk))
+            .Where(f => !excludedUsernames.Contains(f.Username))
             .OrderBy(f => f.Username, StringComparer.OrdinalIgnoreCase)
             .Select(f => new InstagramUserResponse
             {

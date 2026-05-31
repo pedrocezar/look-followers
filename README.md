@@ -71,6 +71,12 @@ Copy these from the same `followers` request in Chrome DevTools (Network → Hea
 
 Higher delays (e.g. 30–60 seconds between requests) are recommended to reduce the chance of Instagram rate limits or blocks.
 
+### Excluded usernames (environment variable only)
+
+| Variable | Description |
+|----------|-------------|
+| `INSTAGRAM_SETTINGS_EXCLUDED_USERNAMES` | JSON array of Instagram usernames to **omit** from the non-followers list (accounts you want to keep following even if they do not follow back). Example: `["user1","user2"]` |
+
 ## Output
 
 Returns users you follow who do not follow you back as a JSON array:

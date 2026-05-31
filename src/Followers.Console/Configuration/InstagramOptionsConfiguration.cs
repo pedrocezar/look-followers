@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Followers.Console.Models;
 using Microsoft.Extensions.Configuration;
 
@@ -59,6 +60,8 @@ public static class InstagramOptionsConfiguration
             section,
             "PooledConnectionLifetimeMs",
             options.PooledConnectionLifetimeMs);
+
+        options.ExcludedUsernames = ReadStringArrayFromEnv("INSTAGRAM_SETTINGS_EXCLUDED_USERNAMES");
     }
 
     private static string? EnvOrConfig(string envName, IConfigurationSection section, string key) =>
@@ -71,5 +74,14 @@ public static class InstagramOptionsConfiguration
             return fromEnv;
 
         return section.GetValue(key, fallback);
+    }
+
+    private static string[] ReadStringArrayFromEnv(string envName)
+    {
+        var env = Environment.GetEnvironmentVariable(envName);
+        if (string.IsNullOrWhiteSpace(env))
+            return [];
+
+        return JsonSerializer.Deserialize<string[]>(env) ?? [];
     }
 }
